@@ -1,0 +1,11 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "myblog",
+	"compatibility_date": "2026-10-08",
+	// 纯静态站：只上传 astro build 产出的 dist/，不需要 Worker 脚本
+	"assets": {
+		"directory": "./dist",
+		"not_found_handling": "404-page"
+	},
+	"routes": [{ "pattern": "blog.marvinleee.com", "custom_domain": true }]
+}
