@@ -1,11 +1,29 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const posts = (await getCollection('posts')).sort(
+	(a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
 ---
 
 <Layout>
-	<Welcome />
+	<h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;">文章</h1>
+	{posts.length === 0 && <p style="color:var(--c-muted);">还没有文章。</p>}
+	<ul class="post-list">
+		{posts.map((post) => (
+			<li class="post-item">
+				<a class="post-item-title" href={`/posts/${post.id}/`}>{post.data.title}</a>
+				<div class="post-item-meta">
+					{post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+				</div>
+				{post.data.description && <p class="post-item-desc">{post.data.description}</p>}
+				{post.data.tags.length > 0 && (
+					<div class="post-tags">
+						{post.data.tags.map((tag: string) => <span class="tag">{tag}</span>)}
+					</div>
+				)}
+			</li>
+		))}
+	</ul>
 </Layout>
