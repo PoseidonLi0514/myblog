@@ -63,6 +63,15 @@ button {
 	color: inherit;
 }
 
+/* 等宽字体关闭连字：JetBrains Mono 默认会把 -> != => 等连成一个字形。
+   代码块在 code.css 里已经关过，这里补上行内代码、kbd 等 */
+code,
+kbd,
+samp,
+pre {
+	font-variant-ligatures: none;
+}
+
 h1,
 h2,
 h3,
