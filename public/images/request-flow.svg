@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 240" role="img" aria-labelledby="t">
+	<title id="t">一次请求的路径：浏览器、CDN、源站</title>
+	<defs>
+		<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+			<path d="M0 0L10 5L0 10z" fill="#5d554b"/>
+		</marker>
+	</defs>
+	<rect width="720" height="240" rx="10" fill="#efe9dc"/>
+	<g font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif" text-anchor="middle">
+		<g fill="#f7f3ea" stroke="#5d554b" stroke-width="1.5">
+			<rect x="30" y="70" width="150" height="90" rx="8"/>
+			<rect x="285" y="70" width="150" height="90" rx="8" stroke="#b03a1f" stroke-width="2"/>
+			<rect x="540" y="70" width="150" height="90" rx="8"/>
+		</g>
+		<g font-size="20" font-weight="600" fill="#1f1b16">
+			<text x="105" y="112">浏览器</text>
+			<text x="360" y="112" fill="#b03a1f">CDN</text>
+			<text x="615" y="112">源站</text>
+		</g>
+		<g font-size="13" fill="#6f665a" font-family="'IBM Plex Mono', ui-monospace, monospace">
+			<text x="105" y="138">GET /</text>
+			<text x="360" y="138">HIT / MISS</text>
+			<text x="615" y="138">200 OK</text>
+		</g>
+		<g stroke="#5d554b" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+			<path d="M184 100H280"/>
+			<path d="M439 100H535"/>
+			<path d="M535 130H443" stroke-dasharray="4 4"/>
+			<path d="M280 130H188" stroke-dasharray="4 4"/>
+		</g>
+		<g font-size="12" fill="#6f665a">
+			<text x="232" y="90">请求</text>
+			<text x="487" y="90">回源</text>
+			<text x="232" y="150">响应</text>
+			<text x="487" y="150">响应</text>
+			<text x="360" y="204">缓存命中（HIT）时，CDN 直接返回，请求不会到达源站</text>
+		</g>
+	</g>
+</svg>
