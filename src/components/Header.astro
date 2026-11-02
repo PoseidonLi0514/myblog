@@ -1,6 +1,5 @@
 ---
 import { site } from '../site.config';
-import Seal from './Seal.astro';
 import Search from './Search.astro';
 
 const path = Astro.url.pathname;
@@ -11,7 +10,6 @@ const isCurrent = (href: string) =>
 <header class="site-header">
 	<div class="container">
 		<a class="brand" href="/" aria-label={`${site.title} · 首页`}>
-			<Seal />
 			<span>{site.title}</span>
 		</a>
 		<nav class="site-nav" aria-label="主导航">

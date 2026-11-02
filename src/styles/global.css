@@ -118,8 +118,9 @@ blockquote {
 }
 
 /* ───────────────────────── 印章 ─────────────────────────
-   一方朱砂印拓（public/seal.webp，由 fav.png 经 scripts/make-icons.mjs 生成）。
-   用图而不用字：字形居中和印泥质感都在图里，不再依赖字体，各平台一致。 */
+   一方朱砂「札」印（public/seal.webp，由 zhang.png 经 scripts/make-icons.mjs 生成）。
+   用图而不用字：字形居中和印泥质感都在图里，不再依赖字体，各平台一致。
+   印外是透明的，毛边直接落在页面底色上，深浅色通用。 */
 
 .seal {
 	--size: 1.75rem;
@@ -127,8 +128,6 @@ blockquote {
 	flex: none;
 	width: var(--size);
 	height: var(--size);
-	border-radius: calc(var(--size) * 0.08);
-	background: var(--seal);
 	object-fit: cover;
 	-webkit-user-drag: none;
 	user-select: none;
@@ -171,10 +170,6 @@ blockquote {
 /* 拉丁字母的字面中心比行框中心高，下移约 0.11em（实测 2px），让站名与印章在同一水平中线上 */
 .brand > span:not(.seal) {
 	translate: 0 0.11em;
-}
-
-.brand:hover .seal {
-	background: var(--accent);
 }
 
 .site-nav {
@@ -271,10 +266,6 @@ blockquote {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.625rem;
-}
-
-.footer-sign .seal {
-	--size: 1.125rem;
 }
 
 .footer-links {

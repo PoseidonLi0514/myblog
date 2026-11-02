@@ -23,7 +23,6 @@
 	--accent-ink: #9a2f17; /* 正文里的链接，比 accent 再深一点 */
 	--accent-soft: rgb(176 58 31 / 0.28);
 	--accent-wash: rgb(176 58 31 / 0.07);
-	--seal: #bf3a22;
 
 	/* 提示块 */
 	--note: #2f5f8a;
@@ -71,7 +70,6 @@
 	--accent-ink: #ef7e63;
 	--accent-soft: rgb(232 102 74 / 0.36);
 	--accent-wash: rgb(232 102 74 / 0.09);
-	--seal: #c9432a;
 
 	--note: #7fa9d4;
 	--tip: #86b38c;
@@ -99,7 +97,6 @@
 		--accent-ink: #ef7e63;
 		--accent-soft: rgb(232 102 74 / 0.36);
 		--accent-wash: rgb(232 102 74 / 0.09);
-		--seal: #c9432a;
 		--note: #7fa9d4;
 		--tip: #86b38c;
 		--important: #b49ad8;

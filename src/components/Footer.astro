@@ -1,6 +1,5 @@
 ---
 import { site } from '../site.config';
-import Seal from './Seal.astro';
 
 const year = new Date().getFullYear();
 ---
@@ -8,7 +7,6 @@ const year = new Date().getFullYear();
 <footer class="site-footer">
 	<div class="container">
 		<span class="footer-sign">
-			<Seal />
 			<span>© {year} {site.author}</span>
 		</span>
 		<ul class="footer-links">
