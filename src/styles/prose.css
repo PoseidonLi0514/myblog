@@ -1,0 +1,487 @@
+/* ───────────────────────── 正文排版 ─────────────────────────
+   中文正文用系统无衬线（清晰、零加载），标题用衬线。
+   英文文章（lang: en）整篇换成 Newsreader 衬线。 */
+
+.prose {
+	font-size: 1.0625rem;
+	line-height: 1.85;
+	color: var(--ink-1);
+	overflow-wrap: break-word;
+}
+
+.prose p,
+.prose li {
+	text-wrap: pretty;
+}
+
+/* 垂直节奏：统一用上外边距 */
+.prose > * + * {
+	margin-block-start: var(--flow, 1.25em);
+}
+
+.prose > :is(.code-block, .table-wrap, figure, .math-block, .callout, details),
+.prose > :is(.code-block, .table-wrap, figure, .math-block, .callout, details) + * {
+	--flow: 1.75rem;
+}
+
+/* ── 标题 ── */
+
+.prose :is(h1, h2, h3, h4, h5, h6) {
+	position: relative;
+	font-family: var(--font-serif);
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--ink);
+	text-wrap: balance;
+	scroll-margin-top: 1.5rem;
+}
+
+.prose h1 {
+	font-size: 1.75em;
+	margin-block-start: 2em;
+	line-height: 1.3;
+}
+
+.prose h2 {
+	font-size: 1.5em;
+	margin-block-start: 2.2em;
+	line-height: 1.35;
+}
+
+.prose h3 {
+	font-size: 1.2em;
+	margin-block-start: 2em;
+}
+
+.prose h4 {
+	font-size: 1em;
+	margin-block-start: 1.8em;
+	font-family: var(--font-sans);
+}
+
+.prose :is(h5, h6) {
+	font-size: 0.9375em;
+	margin-block-start: 1.6em;
+	font-family: var(--font-sans);
+	color: var(--ink-2);
+}
+
+.prose :is(h1, h2, h3, h4, h5, h6) + * {
+	margin-block-start: 0.8em;
+}
+
+.prose > :first-child {
+	margin-block-start: 0;
+}
+
+/* 悬停时在左侧页边出现 #（选择器带 .prose，才能压过 .prose a 的链接样式） */
+.prose .heading-anchor {
+	position: absolute;
+	right: 100%;
+	top: 0;
+	padding-right: 0.45em;
+	font-weight: 400;
+	color: var(--ink-3);
+	text-decoration: none;
+	opacity: 0;
+	transition:
+		opacity 0.15s ease,
+		color 0.15s ease;
+}
+
+.heading-anchor::before {
+	content: '#';
+}
+
+:is(h1, h2, h3, h4, h5, h6):hover > .heading-anchor,
+.heading-anchor:focus-visible {
+	opacity: 1;
+}
+
+.prose .heading-anchor:hover {
+	color: var(--accent);
+}
+
+@media (hover: none), (max-width: 48rem) {
+	.prose .heading-anchor {
+		display: none;
+	}
+}
+
+/* ── 行内 ── */
+
+.prose a {
+	color: var(--accent-ink);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-decoration-color: var(--accent-soft);
+	text-underline-offset: 0.22em;
+	transition: text-decoration-color 0.15s ease;
+}
+
+.prose a:hover {
+	text-decoration-color: currentColor;
+}
+
+.prose a.external::after {
+	content: '';
+	display: inline-block;
+	width: 0.55em;
+	height: 0.55em;
+	margin-left: 0.15em;
+	background: currentColor;
+	opacity: 0.75;
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l6-6M4.5 3H9v4.5'/%3E%3C/svg%3E") center / contain no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l6-6M4.5 3H9v4.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.prose strong {
+	font-weight: 600;
+	color: var(--ink);
+}
+
+/* 强调：西文用 Newsreader 斜体，中文用楷体（正体，不做伪斜体） */
+.prose em {
+	font-family: var(--font-kai);
+	font-style: italic;
+	font-synthesis-style: none;
+}
+
+.prose :not(pre) > code {
+	padding: 0.125em 0.375em;
+	border: 1px solid var(--rule);
+	border-radius: 4px;
+	background: var(--paper-2);
+	color: var(--ink);
+	font-family: var(--font-mono);
+	font-size: 0.84em;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}
+
+.prose a code {
+	color: inherit;
+}
+
+.prose :is(sup, sub) {
+	position: relative;
+	font-size: 0.75em;
+	line-height: 0;
+	vertical-align: baseline;
+}
+
+.prose sup {
+	top: -0.5em;
+}
+
+.prose sub {
+	bottom: -0.25em;
+}
+
+.prose [data-footnote-ref] {
+	margin-left: 0.1em;
+	padding-inline: 0.1em;
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+	text-decoration: none;
+}
+
+.prose kbd {
+	padding: 0.1em 0.4em;
+	border: 1px solid var(--rule);
+	border-bottom-width: 2px;
+	border-radius: 4px;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--font-mono);
+	font-size: 0.8em;
+	white-space: nowrap;
+}
+
+.prose mark {
+	padding-inline: 0.1em;
+	background: linear-gradient(transparent 58%, color-mix(in srgb, var(--accent) 22%, transparent) 58%);
+	color: inherit;
+}
+
+.prose del {
+	color: var(--ink-3);
+}
+
+/* ── 块级 ── */
+
+.prose blockquote:not(.callout) {
+	padding-left: 1.25em;
+	border-left: 2px solid var(--accent);
+	font-family: var(--font-kai);
+	font-size: 1.0625em;
+	color: var(--ink-2);
+}
+
+.prose blockquote > * + * {
+	margin-block-start: 0.75em;
+}
+
+.prose :is(ul, ol) {
+	padding-left: 1.5em;
+}
+
+.prose li + li,
+.prose li > :is(ul, ol) {
+	margin-block-start: 0.375em;
+}
+
+.prose li > p + * {
+	margin-block-start: 0.5em;
+}
+
+.prose ul > li::marker {
+	color: var(--accent);
+}
+
+.prose ol > li::marker {
+	color: var(--ink-3);
+	font-family: var(--font-mono);
+	font-size: 0.875em;
+}
+
+.prose .contains-task-list {
+	padding-left: 0.25em;
+	list-style: none;
+}
+
+.prose .task-list-item input {
+	margin: 0 0.5em 0 0;
+	accent-color: var(--accent);
+	translate: 0 0.125em;
+}
+
+/* 分隔线：三个点 */
+.prose hr {
+	width: 3.75em;
+	height: 1em;
+	margin: 2.75em auto;
+	border: 0;
+	background: radial-gradient(circle, var(--ink-3) 0 1.6px, transparent 2px) center / 1.25em 100% repeat-x;
+}
+
+.prose hr + * {
+	margin-block-start: 0;
+}
+
+.prose img {
+	display: block;
+	margin-inline: auto;
+	border-radius: 4px;
+}
+
+.prose figcaption {
+	margin-top: 0.875em;
+	font-size: 0.875em;
+	line-height: 1.6;
+	color: var(--ink-3);
+	text-align: center;
+}
+
+/* 表格：书籍式三线表 */
+.table-wrap {
+	overflow-x: auto;
+	scrollbar-width: thin;
+}
+
+.prose table {
+	width: 100%;
+	border-collapse: collapse;
+	border-block: 1.5px solid var(--rule-strong);
+	font-size: 0.9375em;
+	line-height: 1.6;
+	font-variant-numeric: tabular-nums;
+}
+
+.prose thead th {
+	border-bottom: 1px solid var(--rule-strong);
+	font-weight: 600;
+	color: var(--ink);
+	white-space: nowrap;
+}
+
+.prose :is(th, td) {
+	padding: 0.6em 0.9em;
+	text-align: left; /* 对齐方式由 Markdown 以行内 style 写入，会覆盖这里 */
+	vertical-align: top;
+}
+
+.prose :is(th, td):first-child {
+	padding-left: 0;
+}
+
+.prose :is(th, td):last-child {
+	padding-right: 0;
+}
+
+.prose tbody tr + tr td {
+	border-top: 1px solid var(--rule);
+}
+
+/* 提示块：颜色 + 形状双重区分，不依赖色觉 */
+.prose .callout {
+	--c: var(--note);
+	padding: 1rem 1.25rem;
+	border-left: 3px solid var(--c);
+	border-radius: 0 var(--radius) var(--radius) 0;
+	background: color-mix(in srgb, var(--c) 7%, transparent);
+	font-size: 0.96875em;
+}
+
+/* 与代码块一样，宽屏时框线挂进页边，文字与正文对齐 */
+@media (min-width: 52rem) {
+	.prose > .callout {
+		margin-inline: calc(-1.25rem - 3px);
+	}
+}
+
+.prose .callout > * + * {
+	margin-block-start: 0.6em;
+}
+
+.callout-title {
+	display: flex;
+	align-items: center;
+	gap: 0.55em;
+	font-size: 0.84em;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	color: var(--c);
+}
+
+.callout-mark {
+	width: 0.6em;
+	height: 0.6em;
+	background: currentColor;
+}
+
+.callout-note .callout-mark {
+	border-radius: 50%;
+}
+
+.prose .callout-tip {
+	--c: var(--tip);
+}
+
+.callout-tip .callout-mark {
+	rotate: 45deg;
+	scale: 0.85;
+}
+
+.prose .callout-important {
+	--c: var(--important);
+}
+
+.prose .callout-warning {
+	--c: var(--warning);
+}
+
+.callout-warning .callout-mark {
+	clip-path: polygon(50% 0, 100% 100%, 0 100%);
+	width: 0.7em;
+}
+
+.prose .callout-caution {
+	--c: var(--caution);
+}
+
+.callout-caution .callout-mark {
+	clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%);
+}
+
+.prose details {
+	padding: 0.75em 1.125em;
+	border: 1px solid var(--rule);
+	border-radius: var(--radius);
+}
+
+.prose summary {
+	cursor: pointer;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+.prose details > :not(summary) {
+	margin-block-start: 0.75em;
+}
+
+/* 公式 */
+.math-block {
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding-block: 0.25em;
+}
+
+.prose .katex {
+	font-size: 1.1em;
+}
+
+.prose .katex-display {
+	margin: 0;
+}
+
+/* 脚注 */
+.prose .footnotes {
+	margin-block-start: 3.5rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid var(--rule);
+	font-size: 0.875rem;
+	line-height: 1.75;
+	color: var(--ink-2);
+}
+
+.prose .footnotes-title {
+	margin: 0 0 1rem;
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	font-weight: 400;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+}
+
+.prose .footnotes ol {
+	padding-left: 1.25em;
+}
+
+.prose .footnotes li + li {
+	margin-block-start: 0.5em;
+}
+
+.prose [data-footnote-backref] {
+	margin-left: 0.25em;
+	font-family: var(--font-sans);
+	text-decoration: none;
+}
+
+.prose .footnotes li:target,
+.prose sup:has(> :target) {
+	background: var(--accent-wash);
+	border-radius: 3px;
+}
+
+/* ── 英文文章 ── */
+
+.prose:lang(en) {
+	font-family: var(--font-serif);
+	font-size: 1.1875rem;
+	line-height: 1.65;
+	hyphens: auto;
+}
+
+.prose:lang(en) blockquote:not(.callout) {
+	font-size: 1em;
+	font-style: italic;
+}
+
+.post-lede:lang(en) {
+	font-family: var(--font-serif);
+	font-size: 1.25rem;
+	font-style: italic;
+	line-height: 1.6;
+}

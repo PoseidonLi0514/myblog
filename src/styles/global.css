@@ -1,0 +1,360 @@
+@import './tokens.css';
+
+/* ───────────────────────── 基础 ───────────────────────── */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	/* 大屏等比放大：视口 1600px 以下为 16px，到 2400px 时为 20px，之后不再变大。
+	   版心、侧栏、目录都以 rem 计，会一起放大，每行字数不变。 */
+	font-size: clamp(100%, 50% + 0.5vw, 125%);
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+	scroll-padding-top: 1.5rem;
+	scrollbar-gutter: stable;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		scroll-behavior: smooth;
+	}
+}
+
+body {
+	margin: 0;
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	background: var(--paper);
+	color: var(--ink-1);
+	font-family: var(--font-sans);
+	font-size: 1rem;
+	line-height: 1.7;
+	font-kerning: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+	/* 中英文之间自动留出间隙（浏览器支持时） */
+	text-autospace: normal;
+}
+
+main {
+	flex: 1;
+}
+
+img,
+svg,
+video {
+	max-width: 100%;
+	height: auto;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+button {
+	font: inherit;
+	color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+figure,
+blockquote {
+	margin: 0;
+}
+
+::selection {
+	background: var(--selection);
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+	border-radius: 2px;
+}
+
+.container {
+	width: min(100% - 2 * var(--gutter), var(--measure));
+	margin-inline: auto;
+}
+
+.visually-hidden {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.skip-link {
+	position: fixed;
+	left: 1rem;
+	top: -3rem;
+	z-index: 100;
+	padding: 0.5rem 0.875rem;
+	background: var(--ink);
+	color: var(--paper);
+	border-radius: var(--radius);
+	font-size: 0.875rem;
+}
+
+.skip-link:focus {
+	top: 1rem;
+}
+
+/* ───────────────────────── 印章 ─────────────────────────
+   一方朱砂印拓（public/seal.webp，由 fav.png 经 scripts/make-icons.mjs 生成）。
+   用图而不用字：字形居中和印泥质感都在图里，不再依赖字体，各平台一致。 */
+
+.seal {
+	--size: 1.75rem;
+	display: block;
+	flex: none;
+	width: var(--size);
+	height: var(--size);
+	border-radius: calc(var(--size) * 0.08);
+	background: var(--seal);
+	object-fit: cover;
+	-webkit-user-drag: none;
+	user-select: none;
+}
+
+/* 宽屏：页眉页脚放宽到整个框架，所有页面一致，切换页面时不跳动 */
+@media (min-width: 80rem) {
+	.site-header .container,
+	.site-footer .container {
+		width: min(100% - 2 * var(--gutter), var(--frame));
+	}
+}
+
+/* ───────────────────────── 页眉 ───────────────────────── */
+
+.site-header {
+	padding-block: clamp(1.25rem, 4vw, 2rem) 0;
+	view-transition-name: site-header;
+}
+
+.site-header .container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.625rem;
+	font-family: var(--font-serif);
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--ink);
+	letter-spacing: 0.01em;
+}
+
+/* 拉丁字母的字面中心比行框中心高，下移约 0.11em（实测 2px），让站名与印章在同一水平中线上 */
+.brand > span:not(.seal) {
+	translate: 0 0.11em;
+}
+
+.brand:hover .seal {
+	background: var(--accent);
+}
+
+.site-nav {
+	display: flex;
+	align-items: center;
+	gap: clamp(0.875rem, 3vw, 1.5rem);
+	font-size: 0.9375rem;
+}
+
+.site-nav a {
+	position: relative;
+	color: var(--ink-2);
+	padding-block: 0.25rem;
+	transition: color 0.15s ease;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current] {
+	color: var(--ink);
+}
+
+.site-nav a[aria-current]::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	bottom: -0.2rem;
+	width: 4px;
+	height: 4px;
+	margin-left: -2px;
+	border-radius: 50%;
+	background: var(--accent);
+}
+
+.nav-tools {
+	display: flex;
+	gap: 0.125rem;
+	margin-left: -0.375rem;
+}
+
+.icon-button {
+	display: inline-grid;
+	place-items: center;
+	width: 2rem;
+	height: 2rem;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--ink-2);
+	cursor: pointer;
+	transition:
+		color 0.15s ease,
+		background-color 0.15s ease;
+}
+
+.icon-button:hover {
+	color: var(--ink);
+	background: var(--paper-2);
+}
+
+.icon-button svg {
+	width: 1.125rem;
+	height: 1.125rem;
+}
+
+.theme-toggle .icon-sun,
+:root[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+:root[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+/* ───────────────────────── 页脚 ───────────────────────── */
+
+.site-footer {
+	margin-top: clamp(4rem, 10vw, 6rem);
+	padding-block: 1.75rem 2.5rem;
+	font-size: 0.8125rem;
+	color: var(--ink-3);
+}
+
+.site-footer .container {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem 1.5rem;
+	padding-top: 1.75rem;
+	border-top: 1px solid var(--rule);
+}
+
+.footer-sign {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.625rem;
+}
+
+.footer-sign .seal {
+	--size: 1.125rem;
+}
+
+.footer-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.footer-links a {
+	transition: color 0.15s ease;
+}
+
+.footer-links a:hover {
+	color: var(--accent-ink);
+}
+
+/* ───────────────────────── 阅读进度 ───────────────────────── */
+
+.progress {
+	display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+	@media (prefers-reduced-motion: no-preference) {
+		.progress {
+			display: block;
+			position: fixed;
+			inset: 0 0 auto;
+			z-index: 50;
+			height: 2px;
+			background: var(--accent);
+			transform-origin: 0 50%;
+			transform: scaleX(0);
+			animation: progress linear both;
+			animation-timeline: scroll(root);
+		}
+	}
+}
+
+@keyframes progress {
+	to {
+		transform: scaleX(1);
+	}
+}
+
+/* ───────────────────────── 页面切换 ───────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+	@view-transition {
+		navigation: auto;
+	}
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 0.2s;
+}
+
+/* ───────────────────────── 打印 ───────────────────────── */
+
+@media print {
+	:root {
+		--paper: #fff;
+		--paper-2: #f5f5f5;
+		--ink: #000;
+		--ink-1: #111;
+	}
+
+	.site-header,
+	.site-footer,
+	.toc,
+	.toc-inline,
+	.side-nav,
+	.post-nav,
+	.progress,
+	.code-copy,
+	.heading-anchor {
+		display: none !important;
+	}
+}

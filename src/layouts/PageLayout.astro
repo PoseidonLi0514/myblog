@@ -1,0 +1,29 @@
+---
+// 普通页面（关于等）。Markdown 页面在 frontmatter 里写 layout 指向这里。
+import BaseLayout from './BaseLayout.astro';
+import Prose from '../components/Prose.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+	kicker?: string;
+	/** Markdown 页面会把 frontmatter 放在这里传入 */
+	frontmatter?: { title: string; description?: string; kicker?: string };
+}
+
+const fm = Astro.props.frontmatter ?? Astro.props;
+const { title, description, kicker } = fm;
+---
+
+<BaseLayout title={title} description={description}>
+	<div class="container">
+		<header class="page-head">
+			{kicker && <span class="kicker">{kicker}</span>}
+			<h1 class="page-title">{title}</h1>
+			{description && <p class="page-desc">{description}</p>}
+		</header>
+		<Prose>
+			<slot />
+		</Prose>
+	</div>
+</BaseLayout>

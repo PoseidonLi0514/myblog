@@ -1,0 +1,44 @@
+---
+// 正文容器：加载正文、代码与公式样式，并处理代码复制。
+import 'katex/dist/katex.min.css';
+import '../styles/prose.css';
+import '../styles/code.css';
+
+interface Props {
+	lang?: string;
+	class?: string;
+}
+
+const { lang, class: className } = Astro.props;
+---
+
+<div class:list={['prose', className]} lang={lang}>
+	<slot />
+</div>
+
+<script>
+	document.addEventListener('click', async (event) => {
+		const button = (event.target as Element | null)?.closest<HTMLButtonElement>('[data-copy]');
+		if (!button) return;
+		const code = button.closest('.code-block')?.querySelector('pre code');
+		if (!code) return;
+
+		// diff 行首的 +/- 只是标记，不复制
+		const clone = code.cloneNode(true) as HTMLElement;
+		clone.querySelectorAll('[style*="user-select: none"]').forEach((el) => el.remove());
+		const text = clone.textContent ?? '';
+
+		const label = button.textContent;
+		try {
+			await navigator.clipboard.writeText(text);
+			button.textContent = '已复制';
+			button.dataset.state = 'done';
+		} catch {
+			button.textContent = '复制失败';
+		}
+		setTimeout(() => {
+			button.textContent = label;
+			delete button.dataset.state;
+		}, 1600);
+	});
+</script>

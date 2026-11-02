@@ -1,0 +1,21 @@
+---
+interface Props {
+	/** 尺寸，任意 CSS 长度 */
+	size?: string;
+	class?: string;
+}
+
+const { size, class: className } = Astro.props;
+---
+
+<img
+	class:list={['seal', className]}
+	src="/seal.webp"
+	alt=""
+	width="192"
+	height="192"
+	decoding="async"
+	draggable="false"
+	style={size ? `--size: ${size}` : undefined}
+	aria-hidden="true"
+/>

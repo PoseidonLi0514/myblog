@@ -1,0 +1,32 @@
+---
+import { dotDate, isoDate } from '../lib/date';
+import { categoryOf, categoryUrl, excerpt, postUrl, type Post } from '../lib/posts';
+
+interface Props {
+	posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+<ol class="post-list">
+	{
+		posts.map((post) => {
+			const category = categoryOf(post);
+			return (
+			<li class="post-item">
+				<div class="item-meta">
+					<time datetime={isoDate(post.data.date)}>{dotDate(post.data.date)}</time>
+					{category && <a class="item-category" href={categoryUrl(category)}>{category.name}</a>}
+				</div>
+				<h3>
+					<a href={postUrl(post)}>{post.data.title}</a>
+					{post.data.draft && <span class="badge">草稿</span>}
+				</h3>
+				<p>{post.data.description ?? excerpt(post.body)}</p>
+				{post.data.tags.length > 0 && <div class="item-tags">{post.data.tags.join(' · ')}</div>}
+			</li>
+			);
+		})
+	}
+</ol>

@@ -1,0 +1,78 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+	headings: MarkdownHeading[];
+	/** side：宽屏页边；inline：窄屏正文前的折叠目录 */
+	variant: 'side' | 'inline';
+}
+
+const { headings, variant } = Astro.props;
+---
+
+{
+	variant === 'side' ? (
+		<nav class="toc" aria-label="目录" data-toc data-pagefind-ignore>
+			<div class="toc-label">目录</div>
+			<ol>
+				{headings.map((h) => (
+					<li class={`depth-${h.depth}`}>
+						<a href={`#${h.slug}`}>{h.text}</a>
+					</li>
+				))}
+			</ol>
+		</nav>
+	) : (
+		<details class="toc-inline" data-pagefind-ignore>
+			<summary>
+				<span class="toc-label">目录</span>
+			</summary>
+			<ol>
+				{headings.map((h) => (
+					<li class={`depth-${h.depth}`}>
+						<a href={`#${h.slug}`}>{h.text}</a>
+					</li>
+				))}
+			</ol>
+		</details>
+	)
+}
+
+<script>
+	// 高亮当前阅读到的小节：取最后一个越过视口上方 30% 的标题
+	const toc = document.querySelector<HTMLElement>('[data-toc]');
+	if (toc) {
+		const links = [...toc.querySelectorAll<HTMLAnchorElement>('a')];
+		let pairs: { link: HTMLAnchorElement; target: HTMLElement }[] = [];
+		const resolve = () => {
+			pairs = links.flatMap((link) => {
+				const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+				return target ? [{ link, target }] : [];
+			});
+		};
+
+		let ticking = false;
+		const update = () => {
+			ticking = false;
+			if (pairs.length === 0) resolve();
+			const line = innerHeight * 0.3;
+			let active: HTMLAnchorElement | undefined;
+			for (const { link, target } of pairs) {
+				if (target.getBoundingClientRect().top <= line) active = link;
+			}
+			if (pairs.length && innerHeight + scrollY >= document.documentElement.scrollHeight - 4) {
+				active = pairs[pairs.length - 1].link;
+			}
+			links.forEach((a) => a.classList.toggle('is-active', a === active));
+		};
+		const onScroll = () => {
+			if (!ticking) {
+				ticking = true;
+				requestAnimationFrame(update);
+			}
+		};
+		addEventListener('scroll', onScroll, { passive: true });
+		addEventListener('resize', onScroll, { passive: true });
+		update();
+	}
+</script>

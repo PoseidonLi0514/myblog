@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchiveList from '../../components/ArchiveList.astro';
+import CategoryNav from '../../components/CategoryNav.astro';
+import { collectTags, getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+const tags = collectTags(posts);
+---
+
+<BaseLayout title="文章" description="全部文章，按年份排列。">
+	<div class="container">
+		<header class="page-head">
+			<span class="kicker">Archive</span>
+			<h1 class="page-title">全部文章</h1>
+			<p class="page-desc">
+				共 {posts.length} 篇，按时间倒序。也可以<a href="/tags/">按 {tags.length} 个标签</a>浏览。
+			</p>
+		</header>
+	</div>
+	<div class="with-side">
+		<CategoryNav posts={posts} current="all" />
+		<div class="side-main">
+			<ArchiveList posts={posts} />
+		</div>
+	</div>
+</BaseLayout>

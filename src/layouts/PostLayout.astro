@@ -1,0 +1,104 @@
+---
+import type { MarkdownHeading } from 'astro';
+import BaseLayout from './BaseLayout.astro';
+import Prose from '../components/Prose.astro';
+import Toc from '../components/Toc.astro';
+import Seal from '../components/Seal.astro';
+import { isoDate, longDate } from '../lib/date';
+import { categoryOf, categoryUrl, postUrl, readingStats, tagUrl, type Post } from '../lib/posts';
+
+interface Props {
+	post: Post;
+	headings: MarkdownHeading[];
+	newer?: Post;
+	older?: Post;
+}
+
+const { post, headings, newer, older } = Astro.props;
+const { title, description, date, updated, tags, toc, lang, draft } = post.data;
+const stats = readingStats(post.body);
+const category = categoryOf(post);
+
+// 目录只收 h2 / h3，排除脚注标题；少于 3 条就不显示
+const tocItems = headings.filter((h) => (h.depth === 2 || h.depth === 3) && h.slug !== 'footnote-label');
+const showToc = toc && tocItems.length >= 3;
+---
+
+<BaseLayout
+	title={title}
+	description={description}
+	article={{ published: date, modified: updated, tags, section: category?.name }}
+	progress>
+	<article
+		class="post"
+		data-pagefind-body
+		data-pagefind-meta={`date:${isoDate(date)}`}>
+		<header class="post-head" data-pagefind-meta={category ? `category:${category.name}` : undefined}>
+			{category && <a class="kicker post-category" href={categoryUrl(category)}>{category.name}</a>}
+			<div class="post-meta" data-pagefind-ignore>
+				<time datetime={isoDate(date)}>{longDate(date)}</time>
+				{
+					updated && (
+						<>
+							<span class="sep">·</span>
+							<span>
+								更新于 <time datetime={isoDate(updated)}>{longDate(updated)}</time>
+							</span>
+						</>
+					)
+				}
+				<span class="sep">·</span>
+				<span>{stats.words.toLocaleString('zh-CN')} 字</span>
+				<span class="sep">·</span>
+				<span>约 {stats.minutes} 分钟</span>
+				{draft && <span class="badge">草稿</span>}
+			</div>
+			<h1 class="post-title" lang={lang}>{title}</h1>
+			{description && <p class="post-lede" lang={lang}>{description}</p>}
+			{
+				tags.length > 0 && (
+					<ul class="post-tags" aria-label="标签">
+						{tags.map((tag) => (
+							<li>
+								<a href={tagUrl(tag)}>{tag}</a>
+							</li>
+						))}
+					</ul>
+				)
+			}
+		</header>
+
+		{showToc && <Toc headings={tocItems} variant="side" />}
+
+		<div class="post-body">
+			{showToc && <Toc headings={tocItems} variant="inline" />}
+			<Prose lang={lang}>
+				<slot />
+			</Prose>
+		</div>
+
+		<footer class="post-foot" data-pagefind-ignore>
+			<div class="post-end">
+				<Seal />
+			</div>
+			{
+				(older || newer) && (
+					<nav class="post-nav" aria-label="上一篇与下一篇">
+						{older && (
+							<a class="prev" href={postUrl(older)} rel="prev">
+								<small>← 上一篇</small>
+								<span>{older.data.title}</span>
+							</a>
+						)}
+						{newer && (
+							<a class="next" href={postUrl(newer)} rel="next">
+								<small>下一篇 →</small>
+								<span>{newer.data.title}</span>
+							</a>
+						)}
+					</nav>
+				)
+			}
+		</footer>
+	</article>
+</BaseLayout>

@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchiveList from '../../components/ArchiveList.astro';
+import CategoryNav from '../../components/CategoryNav.astro';
+import { collectTags, getPosts } from '../../lib/posts';
+
+export async function getStaticPaths() {
+	const posts = await getPosts();
+	return collectTags(posts).map((tag) => ({ params: { tag: tag.slug }, props: { tag, all: posts } }));
+}
+
+const { tag, all } = Astro.props;
+---
+
+<BaseLayout title={`# ${tag.name}`} description={`标签「${tag.name}」下的 ${tag.posts.length} 篇文章。`}>
+	<div class="container">
+		<header class="page-head">
+			<span class="kicker">Tag</span>
+			<h1 class="page-title"><span class="hash">#</span>{tag.name}</h1>
+			<p class="page-desc">
+				{tag.posts.length} 篇文章 · <a href="/tags/">全部标签</a>
+			</p>
+		</header>
+	</div>
+	<div class="with-side">
+		<CategoryNav posts={all} />
+		<div class="side-main">
+			<ArchiveList posts={tag.posts} />
+		</div>
+	</div>
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchiveList from '../../components/ArchiveList.astro';
+import CategoryNav from '../../components/CategoryNav.astro';
+import { collectCategories, getPosts } from '../../lib/posts';
+
+export async function getStaticPaths() {
+	const posts = await getPosts();
+	return collectCategories(posts).map((info) => ({
+		params: { slug: info.category.slug },
+		props: { info, all: posts },
+	}));
+}
+
+const { info, all } = Astro.props;
+const { category, posts } = info;
+---
+
+<BaseLayout title={category.name} description={category.description}>
+	<div class="container">
+		<header class="page-head">
+			<span class="kicker">Category</span>
+			<h1 class="page-title">{category.name}</h1>
+			<p class="page-desc">{category.description}共 {posts.length} 篇。</p>
+		</header>
+	</div>
+	<div class="with-side">
+		<CategoryNav posts={all} current={category.slug} />
+		<div class="side-main">
+			<ArchiveList posts={posts} showCategory={false} />
+		</div>
+	</div>
+</BaseLayout>

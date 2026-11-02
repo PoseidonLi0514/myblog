@@ -1,0 +1,38 @@
+---
+import { isoDate, shortDate } from '../lib/date';
+import { categoryOf, groupByYear, postUrl, type Post } from '../lib/posts';
+
+interface Props {
+	posts: Post[];
+	/** 分类页里不必重复显示分类 */
+	showCategory?: boolean;
+}
+
+const { posts, showCategory = true } = Astro.props;
+const years = groupByYear(posts);
+---
+
+{
+	years.map(([year, items]) => (
+		<section class="archive-year" aria-labelledby={`y${year}`}>
+			<h2 id={`y${year}`}>
+				{year}
+				<small>{items.length} 篇</small>
+			</h2>
+			<ol class="archive-list">
+				{items.map((post) => (
+					<li>
+						<a href={postUrl(post)}>
+							<time datetime={isoDate(post.data.date)}>{shortDate(post.data.date)}</time>
+							<span class="title">
+								{post.data.title}
+								{post.data.draft && <span class="badge">草稿</span>}
+							</span>
+							{showCategory && categoryOf(post) && <span class="category">{categoryOf(post)!.name}</span>}
+						</a>
+					</li>
+				))}
+			</ol>
+		</section>
+	))
+}

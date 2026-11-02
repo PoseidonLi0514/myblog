@@ -1,0 +1,202 @@
+/* ───────────────────────── 代码块 ─────────────────────────
+   Shiki 输出双主题 CSS 变量（--shiki-light / --shiki-dark），这里按 data-theme 取用。 */
+
+.code-block {
+	--code-pad: 1rem;
+	position: relative;
+	border: 1px solid var(--rule);
+	border-radius: var(--radius);
+	background: var(--paper-2);
+}
+
+/* 宽屏时代码框向两侧外扩 1rem，代码文字与正文左缘对齐 */
+@media (min-width: 52rem) {
+	.prose > .code-block {
+		margin-inline: calc(-1 * var(--code-pad));
+	}
+}
+
+/* 手机上通栏 */
+@media (max-width: 40rem) {
+	.prose > .code-block {
+		--code-pad: var(--gutter);
+		margin-inline: calc(-1 * var(--gutter));
+		border-inline: 0;
+		border-radius: 0;
+	}
+}
+
+.code-head {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	min-height: 2.375rem;
+	padding: 0 var(--code-pad);
+	border-bottom: 1px solid var(--rule);
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	color: var(--ink-3);
+}
+
+.code-title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--ink-2);
+}
+
+.code-lang {
+	letter-spacing: 0.04em;
+}
+
+/* 第一项靠左，其余靠右：[文件名 …… 语言 复制]、[语言 …… 复制]、[文件名 …… 复制] */
+.code-head > :nth-child(2) {
+	margin-left: auto;
+}
+
+.code-copy {
+	padding: 0.125rem 0.5rem;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	background: transparent;
+	font-family: var(--font-sans);
+	font-size: 0.75rem;
+	color: var(--ink-3);
+	cursor: pointer;
+	transition:
+		color 0.15s ease,
+		border-color 0.15s ease,
+		background-color 0.15s ease;
+}
+
+.code-copy:hover {
+	color: var(--ink);
+	border-color: var(--rule);
+	background: var(--paper);
+}
+
+.code-copy[data-state='done'] {
+	color: var(--tip);
+}
+
+/* 没有文件名和语言的代码块：不要头部，复制按钮浮在右上角 */
+.code-head:not(:has(.code-title, .code-lang)) {
+	position: absolute;
+	top: 0.375rem;
+	right: 0.5rem;
+	min-height: 0;
+	padding: 0;
+	border: 0;
+	z-index: 1;
+}
+
+.code-block:has(.code-head:not(:has(.code-title, .code-lang))) .code-copy {
+	opacity: 0;
+}
+
+.code-block:hover .code-copy,
+.code-copy:focus-visible {
+	opacity: 1;
+}
+
+.astro-code {
+	margin: 0;
+	padding: 0.875rem var(--code-pad);
+	overflow-x: auto;
+	background: transparent;
+	font-family: var(--font-mono);
+	font-size: 0.875rem;
+	line-height: 1.7;
+	font-variant-ligatures: none;
+	tab-size: 2;
+	scrollbar-width: thin;
+	color: var(--shiki-light);
+}
+
+.astro-code:focus-visible {
+	outline-offset: -2px;
+}
+
+.astro-code code {
+	display: block;
+	width: max-content;
+	min-width: 100%;
+	font: inherit;
+}
+
+/* 每一行撑满宽度，高亮背景才能延伸到右侧 */
+.astro-code .line {
+	display: inline-block;
+	min-width: calc(100% + 2 * var(--code-pad));
+	margin-inline: calc(-1 * var(--code-pad));
+	padding-inline: var(--code-pad);
+}
+
+.astro-code span {
+	color: var(--shiki-light);
+	font-style: var(--shiki-light-font-style, inherit);
+	font-weight: var(--shiki-light-font-weight, inherit);
+	text-decoration: var(--shiki-light-text-decoration, inherit);
+}
+
+:root[data-theme='dark'] .astro-code,
+:root[data-theme='dark'] .astro-code span {
+	color: var(--shiki-dark);
+	font-style: var(--shiki-dark-font-style, inherit);
+	font-weight: var(--shiki-dark-font-weight, inherit);
+	text-decoration: var(--shiki-dark-text-decoration, inherit);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme]) .astro-code,
+	:root:not([data-theme]) .astro-code span {
+		color: var(--shiki-dark);
+		font-style: var(--shiki-dark-font-style, inherit);
+		font-weight: var(--shiki-dark-font-weight, inherit);
+		text-decoration: var(--shiki-dark-text-decoration, inherit);
+	}
+}
+
+/* 空行也要有高度，否则高亮背景会消失 */
+.astro-code .line:empty::after {
+	content: ' ';
+}
+
+/* 行高亮 {2,4-6} */
+.astro-code .line.hl {
+	background: var(--accent-wash);
+	box-shadow: inset 2px 0 var(--accent);
+}
+
+/* diff */
+.astro-code .line.diff-add {
+	background: color-mix(in srgb, var(--tip) 11%, transparent);
+}
+
+.astro-code .line.diff-del {
+	background: color-mix(in srgb, var(--caution) 9%, transparent);
+}
+
+/* 行号（meta 写 nums） */
+.astro-code.has-nums code {
+	counter-reset: line;
+}
+
+.astro-code.has-nums .line::before {
+	counter-increment: line;
+	content: counter(line);
+	display: inline-block;
+	width: 2ch;
+	margin-right: 1.25rem;
+	text-align: right;
+	color: var(--ink-3);
+	opacity: 0.6;
+	user-select: none;
+}
+
+/* 自动换行（meta 写 wrap） */
+.astro-code.is-wrap code {
+	width: auto;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}

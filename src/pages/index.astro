@@ -1,29 +1,50 @@
 ---
-import { getCollection } from 'astro:content';
-import Layout from '../layouts/Layout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostList from '../components/PostList.astro';
+import Seal from '../components/Seal.astro';
+import CategoryNav from '../components/CategoryNav.astro';
+import { getPosts } from '../lib/posts';
+import { site } from '../site.config';
 
-const posts = (await getCollection('posts')).sort(
-	(a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
+const posts = await getPosts();
+const recent = posts.slice(0, site.homePosts);
+const [first, second] = site.intro.heading;
 ---
 
-<Layout>
-	<h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;">文章</h1>
-	{posts.length === 0 && <p style="color:var(--c-muted);">还没有文章。</p>}
-	<ul class="post-list">
-		{posts.map((post) => (
-			<li class="post-item">
-				<a class="post-item-title" href={`/posts/${post.id}/`}>{post.data.title}</a>
-				<div class="post-item-meta">
-					{post.data.date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-				</div>
-				{post.data.description && <p class="post-item-desc">{post.data.description}</p>}
-				{post.data.tags.length > 0 && (
-					<div class="post-tags">
-						{post.data.tags.map((tag: string) => <span class="tag">{tag}</span>)}
-					</div>
-				)}
-			</li>
-		))}
-	</ul>
-</Layout>
+<BaseLayout>
+	<!-- 窄屏：单栏；中屏：分类在左侧页边；宽屏（≥ 80rem）：左栏固定介绍与分类，右栏滚动文章列表 -->
+	<div class="with-side home">
+		<div class="home-intro">
+			<section class="hero">
+				<h1 class="hero-title">
+					<span class="line">{first}</span>
+					<span class="line">{second}<Seal /></span>
+				</h1>
+				<p class="hero-body">{site.intro.body}</p>
+				<ul class="hero-links">
+					{
+						site.links.map((link) => {
+							const external = link.href.startsWith('http');
+							return (
+								<li>
+									<a href={link.href} rel={external ? 'me noopener' : undefined}>
+										{link.label}
+										{external && <span aria-hidden="true"> ↗</span>}
+									</a>
+								</li>
+							);
+						})
+					}
+				</ul>
+			</section>
+			<CategoryNav posts={posts} />
+		</div>
+		<section class="side-main home-list" aria-labelledby="recent">
+			<h2 class="section-head">
+				<span id="recent">最近文章 · Recent</span>
+				<a href="/posts/">全部 {posts.length} 篇 →</a>
+			</h2>
+			<PostList posts={recent} />
+		</section>
+	</div>
+</BaseLayout>

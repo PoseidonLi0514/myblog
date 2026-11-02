@@ -1,0 +1,63 @@
+---
+import { site } from '../site.config';
+import Seal from './Seal.astro';
+import Search from './Search.astro';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) =>
+	path.startsWith(href) || (href === '/posts/' && path.startsWith('/categories/'));
+---
+
+<header class="site-header">
+	<div class="container">
+		<a class="brand" href="/" aria-label={`${site.title} · 首页`}>
+			<Seal />
+			<span>{site.title}</span>
+		</a>
+		<nav class="site-nav" aria-label="主导航">
+			{
+				site.nav.map((item) => (
+					<a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+						{item.label}
+					</a>
+				))
+			}
+			<div class="nav-tools">
+			<Search />
+			<button class="icon-button theme-toggle" type="button" aria-label="切换深浅色" title="切换深浅色" data-theme-toggle>
+				<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"></path>
+				</svg>
+				<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+					<circle cx="12" cy="12" r="4"></circle>
+					<path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"></path>
+				</svg>
+			</button>
+			</div>
+		</nav>
+	</div>
+</header>
+
+<script>
+	// 点击切换；若切换后与系统一致，就清除记录，回到"跟随系统"
+	const root = document.documentElement;
+	const media = matchMedia('(prefers-color-scheme: dark)');
+	const system = () => (media.matches ? 'dark' : 'light');
+
+	document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
+		const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+		root.dataset.theme = next;
+		try {
+			if (next === system()) localStorage.removeItem('theme');
+			else localStorage.setItem('theme', next);
+		} catch {}
+	});
+
+	media.addEventListener('change', () => {
+		let stored = null;
+		try {
+			stored = localStorage.getItem('theme');
+		} catch {}
+		if (!stored) root.dataset.theme = system();
+	});
+</script>

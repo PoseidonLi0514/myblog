@@ -1,0 +1,38 @@
+---
+// 分类导航：宽屏时在左侧页边，窄屏时是正文上方的一行标签。
+import { categoryUrl, collectCategories, type Post } from '../lib/posts';
+
+interface Props {
+	/** 全部文章，用来计数 */
+	posts: Post[];
+	/** 当前分类的 slug；'all' 表示全部文章页；不传则不高亮 */
+	current?: string;
+}
+
+const { posts, current } = Astro.props;
+const categories = collectCategories(posts);
+---
+
+<nav class="side-nav" aria-label="分类">
+	<div class="side-label">分类</div>
+	<ul>
+		<li>
+			<a href="/posts/" aria-current={current === 'all' ? 'page' : undefined}>
+				<span class="name">全部</span>
+				<span class="leader" aria-hidden="true"></span>
+				<span class="count">{posts.length}</span>
+			</a>
+		</li>
+		{
+			categories.map(({ category, posts }) => (
+				<li>
+					<a href={categoryUrl(category)} aria-current={current === category.slug ? 'page' : undefined}>
+						<span class="name">{category.name}</span>
+						<span class="leader" aria-hidden="true" />
+						<span class="count">{posts.length}</span>
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</nav>

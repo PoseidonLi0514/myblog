@@ -1,0 +1,205 @@
+---
+// 站内搜索：Pagefind 在构建时为文章建索引（见 src/integrations/pagefind.mjs），
+// 这里只负责界面。按 Ctrl/⌘ + K 或 / 打开。
+import '../styles/search.css';
+---
+
+<button class="icon-button" type="button" aria-label="搜索" title="搜索（Ctrl K）" data-search-open>
+	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+		<circle cx="11" cy="11" r="6.5"></circle>
+		<path d="M16 16l4.5 4.5"></path>
+	</svg>
+</button>
+
+<dialog class="search" aria-label="搜索文章" data-search>
+	<div class="search-panel">
+		<div class="search-bar">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+				<circle cx="11" cy="11" r="6.5"></circle>
+				<path d="M16 16l4.5 4.5"></path>
+			</svg>
+			<input
+				type="search"
+				placeholder="搜索文章……"
+				autocomplete="off"
+				spellcheck="false"
+				aria-label="搜索关键词"
+				aria-controls="search-results"
+				data-search-input
+			/>
+			<button class="search-close" type="button" data-search-close>Esc</button>
+		</div>
+		<p class="search-status" role="status" data-search-status>输入关键词，搜索全部文章。</p>
+		<ol class="search-results" id="search-results" data-search-results></ol>
+	</div>
+</dialog>
+
+<script>
+	interface SubResult {
+		title: string;
+		url: string;
+		excerpt: string;
+	}
+	interface ResultData {
+		url: string;
+		excerpt: string;
+		meta: Record<string, string | undefined>;
+		sub_results?: SubResult[];
+	}
+	interface Pagefind {
+		init(): Promise<void>;
+		search(query: string): Promise<{ results: { data(): Promise<ResultData> }[] }>;
+	}
+
+	const dialog = document.querySelector<HTMLDialogElement>('[data-search]')!;
+	const input = dialog.querySelector<HTMLInputElement>('[data-search-input]')!;
+	const status = dialog.querySelector<HTMLElement>('[data-search-status]')!;
+	const list = dialog.querySelector<HTMLOListElement>('[data-search-results]')!;
+
+	let pagefind: Pagefind | undefined;
+	let failed = false;
+	async function load() {
+		if (pagefind || failed) return pagefind;
+		try {
+			const url = '/pagefind/pagefind.js'; // 变量形式，避免 Vite 在构建时解析
+			pagefind = (await import(/* @vite-ignore */ url)) as Pagefind;
+			await pagefind.init();
+		} catch {
+			failed = true;
+		}
+		return pagefind;
+	}
+
+	// 摘要只保留 <mark>，其余一律当纯文本，避免正文里的 HTML 片段被当成标签插入
+	function safeExcerpt(html: string): DocumentFragment {
+		const doc = new DOMParser().parseFromString(html, 'text/html'); // 解析结果是惰性的，不会执行脚本或加载图片
+		const out = document.createDocumentFragment();
+		const walk = (node: Node, into: Node) => {
+			for (const child of node.childNodes) {
+				if (child.nodeType === Node.TEXT_NODE) {
+					into.appendChild(document.createTextNode(child.textContent ?? ''));
+				} else if (child instanceof Element && child.tagName === 'MARK') {
+					const mark = document.createElement('mark');
+					walk(child, mark);
+					into.appendChild(mark);
+				} else {
+					walk(child, into);
+				}
+			}
+		};
+		walk(doc.body, out);
+		return out;
+	}
+
+	function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string) {
+		const node = document.createElement(tag);
+		node.className = className;
+		if (text) node.textContent = text;
+		return node;
+	}
+
+	function render(items: ResultData[]) {
+		list.replaceChildren(
+			...items.map((item) => {
+				const li = document.createElement('li');
+
+				const main = el('a', 'search-hit');
+				main.href = item.url;
+				const head = el('span', 'search-hit-head');
+				head.append(el('span', 'search-hit-title', item.meta.title ?? item.url));
+				const meta = [item.meta.date, item.meta.category].filter(Boolean).join(' · ');
+				if (meta) head.append(el('span', 'search-hit-meta', meta));
+				const excerpt = el('span', 'search-hit-excerpt');
+				excerpt.append(safeExcerpt(item.excerpt));
+				main.append(head, excerpt);
+				li.append(main);
+
+				// 命中具体小节时，列出小节，点击直接跳到对应位置
+				for (const sub of (item.sub_results ?? []).filter((s) => s.url.includes('#')).slice(0, 3)) {
+					const a = el('a', 'search-hit search-sub');
+					a.href = sub.url;
+					const ex = el('span', 'search-hit-excerpt');
+					ex.append(safeExcerpt(sub.excerpt));
+					a.append(el('span', 'search-hit-title', sub.title), ex);
+					li.append(a);
+				}
+				return li;
+			}),
+		);
+		setActive(0);
+	}
+
+	let seq = 0;
+	let timer: number | undefined;
+	async function search(query: string) {
+		const id = ++seq;
+		if (!query.trim()) {
+			list.replaceChildren();
+			status.textContent = '输入关键词，搜索全部文章。';
+			return;
+		}
+		const pf = await load();
+		if (id !== seq) return;
+		if (!pf) {
+			status.textContent = import.meta.env.DEV
+				? '还没有搜索索引：先运行一次 npm run build，开发服务器会直接使用它。'
+				: '搜索暂时不可用。';
+			return;
+		}
+		const { results } = await pf.search(query);
+		const items = await Promise.all(results.slice(0, 8).map((r) => r.data()));
+		if (id !== seq) return; // 已经有更新的输入
+		status.textContent = items.length ? `找到 ${results.length} 篇相关文章` : `没有找到与"${query}"相关的文章。`;
+		render(items);
+	}
+
+	// 键盘：↑ ↓ 选择，Enter 打开
+	let active = -1;
+	const hits = () => [...list.querySelectorAll<HTMLAnchorElement>('.search-hit')];
+	function setActive(index: number) {
+		const all = hits();
+		active = all.length ? (index + all.length) % all.length : -1;
+		all.forEach((a, i) => a.classList.toggle('is-active', i === active));
+		all[active]?.scrollIntoView({ block: 'nearest' });
+	}
+
+	input.addEventListener('input', () => {
+		clearTimeout(timer);
+		timer = window.setTimeout(() => search(input.value), 120);
+	});
+	input.addEventListener('keydown', (event) => {
+		if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+			event.preventDefault();
+			setActive(active + (event.key === 'ArrowDown' ? 1 : -1));
+		} else if (event.key === 'Enter' && active >= 0) {
+			event.preventDefault();
+			hits()[active]?.click();
+		}
+	});
+	list.addEventListener('mousemove', (event) => {
+		const hit = (event.target as Element).closest<HTMLAnchorElement>('.search-hit');
+		if (hit) setActive(hits().indexOf(hit));
+	});
+
+	function open() {
+		if (dialog.open) return;
+		dialog.showModal();
+		input.focus();
+		input.select();
+		load(); // 提前加载索引
+	}
+
+	document.querySelector('[data-search-open]')?.addEventListener('click', open);
+	dialog.querySelector('[data-search-close]')?.addEventListener('click', () => dialog.close());
+	// 点击遮罩关闭（点在面板外时，事件目标是 dialog 本身）
+	dialog.addEventListener('click', (event) => {
+		if (event.target === dialog) dialog.close();
+	});
+	document.addEventListener('keydown', (event) => {
+		const typing = (event.target as Element | null)?.closest('input, textarea, select, [contenteditable]');
+		if ((event.key === 'k' && (event.metaKey || event.ctrlKey)) || (event.key === '/' && !typing)) {
+			event.preventDefault();
+			open();
+		}
+	});
+</script>
