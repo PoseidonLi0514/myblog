@@ -6,7 +6,9 @@ import katex from 'katex';
 export const katexPlugin = {
 	name: 'katex',
 	inlineMath(node, ctx) {
-		ctx.replaceNode(node, { raw: katex.renderToString(node.value, { throwOnError: false }) });
+		// 行内公式要输出成行内的 html 节点：{ raw } 会被当作 Markdown 重新解析，放进段落里会再生出一个 <p>
+		const html = katex.renderToString(node.value, { throwOnError: false });
+		ctx.replaceNode(node, { type: 'html', value: html });
 	},
 	math(node, ctx) {
 		const html = katex.renderToString(node.value, { displayMode: true, throwOnError: false });
