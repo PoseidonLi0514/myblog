@@ -147,6 +147,13 @@
 	font-synthesis-style: none;
 }
 
+/* 只对含汉字的强调生效（由 src/plugins/prose.mjs 加 .cjk）：楷体字面偏小又紧贴前一个字，
+   略放大并在左侧留一点空隙；西文斜体不动 */
+.prose em.cjk {
+	font-size: 1.08em;
+	margin-left: 0.2em;
+}
+
 .prose :not(pre) > code {
 	padding: 0.125em 0.375em;
 	border: 1px solid var(--rule);
