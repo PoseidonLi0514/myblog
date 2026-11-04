@@ -7,7 +7,7 @@
 // - 带 title 的独立图片：![说明](src "图注") → <figure> + <figcaption>
 // - 外部链接：加 .external
 // - 脚注标题：去掉 sr-only，显示出来
-// - 强调：内容含汉字的 <em> 加 .cjk，样式据此只调整中文楷体的字号和左间距
+// - 强调：内容含汉字的 <em> 加 .cjk，样式据此只调整中文楷体的字号
 import GithubSlugger from 'github-slugger';
 
 const CALLOUTS = {
